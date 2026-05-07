@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎈 Balon Patlatmaca Oyunu</title>
+    <title>🎈 Balon Patlatmaca Macerası - 50 Bölüm</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,7 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(145deg, #0b3b5f, #1b7f9e);
+            background: linear-gradient(145deg, #0a0f2a, #1a1f3a);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,16 +23,16 @@
             touch-action: manipulation;
         }
 
-        .game-wrapper {
+        .game-container {
             position: relative;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1300px;
             height: 95vh;
-            background: radial-gradient(circle at 30% 10%, #a2e0f0, #3a8cba);
+            background: radial-gradient(circle at 30% 20%, #87CEEB, #2c5f8a);
             border-radius: 48px;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             overflow: hidden;
-            border: 4px solid #ffdd99;
+            border: 3px solid #ffd966;
         }
 
         canvas {
@@ -43,454 +43,535 @@
             height: 100%;
             display: block;
             cursor: pointer;
-            touch-action: none;
         }
 
-        .ui-panel {
+        .ui-top {
             position: absolute;
-            top: 15px;
+            top: 10px;
             left: 0;
             right: 0;
             display: flex;
             justify-content: space-between;
-            padding: 10px 25px;
-            background: #000000aa;
-            backdrop-filter: blur(10px);
-            border-radius: 60px;
-            margin: 0 20px;
-            color: white;
-            font-weight: bold;
-            font-size: 1.4rem;
+            padding: 8px 20px;
+            gap: 10px;
+            flex-wrap: wrap;
             z-index: 10;
             pointer-events: none;
-            font-family: monospace;
-            letter-spacing: 1px;
-            border: 1px solid #ffd966;
         }
 
-        .score-box, .lives-box, .level-box {
-            background: #1e2a2ecc;
-            padding: 6px 18px;
-            border-radius: 50px;
-            backdrop-filter: blur(4px);
-        }
-
-        .restart-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: #ffaa33;
-            border: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding: 10px 20px;
+        .ui-card {
+            background: #000000aa;
+            backdrop-filter: blur(10px);
+            padding: 6px 16px;
             border-radius: 40px;
-            cursor: pointer;
-            z-index: 20;
-            font-family: inherit;
-            box-shadow: 0 4px 0 #7a4c1a;
-            transition: 0.07s linear;
+            color: #ffefb0;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 1px solid #ffd966;
+            font-family: monospace;
             pointer-events: auto;
-            color: #2c2e1e;
         }
 
-        .restart-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #7a4c1a;
+        .ui-card span {
+            color: #ffaa44;
+            font-size: 1.3rem;
         }
 
-        .game-message {
+        .powerup-bar {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 10;
+            flex-wrap: wrap;
+            pointer-events: none;
+        }
+
+        .power-btn {
+            pointer-events: auto;
+            background: #2c2e1ecc;
+            backdrop-filter: blur(8px);
+            border: 2px solid #ffd966;
+            border-radius: 60px;
+            padding: 6px 18px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ffefb0;
+            cursor: pointer;
+            transition: 0.1s;
+            font-family: monospace;
+        }
+
+        .power-btn:active {
+            transform: scale(0.96);
+        }
+
+        .power-btn.disabled {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+            pointer-events: none;
+        }
+
+        .story-box {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #000000cc;
-            backdrop-filter: blur(15px);
-            color: gold;
-            font-size: 2.2rem;
-            font-weight: bold;
-            padding: 20px 35px;
-            border-radius: 70px;
+            background: #000000dd;
+            backdrop-filter: blur(20px);
+            color: #ffefb0;
+            padding: 20px 30px;
+            border-radius: 60px;
             text-align: center;
-            white-space: nowrap;
-            z-index: 25;
-            border: 2px solid #ffd966;
+            z-index: 30;
+            border: 2px solid gold;
+            max-width: 80%;
             pointer-events: none;
+            font-size: 1.2rem;
+            font-weight: bold;
             font-family: monospace;
         }
 
+        .boss-health {
+            position: absolute;
+            top: 80px;
+            left: 20%;
+            right: 20%;
+            background: #550000cc;
+            border-radius: 30px;
+            padding: 5px;
+            z-index: 12;
+            border: 2px solid #ff4444;
+            display: none;
+        }
+
+        .boss-health-bar {
+            background: #ff3333;
+            height: 20px;
+            border-radius: 30px;
+            width: 100%;
+            transition: width 0.2s;
+        }
+
+        .restart-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: #ffaa33;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            z-index: 20;
+            font-family: inherit;
+            box-shadow: 0 3px 0 #7a4c1a;
+        }
+
         @media (max-width: 700px) {
-            .ui-panel {
-                font-size: 1rem;
-                padding: 6px 15px;
-            }
-            .game-message {
-                font-size: 1.4rem;
-                padding: 12px 20px;
-                white-space: nowrap;
-            }
-            .restart-btn {
-                font-size: 0.9rem;
-                padding: 6px 15px;
-            }
+            .ui-card { font-size: 0.7rem; padding: 4px 10px; }
+            .power-btn { font-size: 0.7rem; padding: 4px 12px; }
+            .story-box { font-size: 0.9rem; padding: 12px 18px; }
         }
     </style>
 </head>
 <body>
-<div class="game-wrapper">
-    <div class="ui-panel">
-        <div class="score-box">🎈 SKOR: <span id="scoreValue">0</span></div>
-        <div class="lives-box">❤️ CAN: <span id="livesValue">3</span></div>
-        <div class="level-box">⭐ SEVİYE: <span id="levelValue">1</span></div>
-    </div>
+<div class="game-container" id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <button class="restart-btn" id="restartButton">🎈 YENİ OYUN</button>
-    <div id="gameMessage" class="game-message" style="display: none;"></div>
+    <div class="ui-top">
+        <div class="ui-card">📖 BÖLÜM <span id="levelNumber">1</span> / 50</div>
+        <div class="ui-card">🎯 HEDEF: <span id="targetCount">10</span></div>
+        <div class="ui-card">💥 PATLATILAN: <span id="poppedCount">0</span></div>
+        <div class="ui-card">❤️ CAN: <span id="livesValue">5</span></div>
+        <div class="ui-card">⭐ PUAN: <span id="scoreValue">0</span></div>
+    </div>
+    <div class="powerup-bar">
+        <div class="power-btn" id="slowPower">🐢 YAVAŞLAT (1)</div>
+        <div class="power-btn" id="doublePower">⚡ ÇİFT PATLAT (1)</div>
+        <div class="power-btn" id="healPower">💚 CAN DOLDUR (1)</div>
+    </div>
+    <div class="boss-health" id="bossHealthContainer">
+        <div style="display:flex; justify-content:space-between; padding:0 8px; color:white;">👑 BOSS PATLAGON 👑 <span id="bossHpText">100%</span></div>
+        <div class="boss-health-bar" id="bossHealthBar"></div>
+    </div>
+    <div class="story-box" id="storyBox"></div>
+    <button class="restart-btn" id="restartBtn">🔄 YENİDEN BAŞLA</button>
 </div>
 
 <script>
     (function(){
-        // --- DOM ELEMANLARI ---
+        // ---------- DOM ----------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const scoreSpan = document.getElementById('scoreValue');
+        const levelSpan = document.getElementById('levelNumber');
+        const targetSpan = document.getElementById('targetCount');
+        const poppedSpan = document.getElementById('poppedCount');
         const livesSpan = document.getElementById('livesValue');
-        const levelSpan = document.getElementById('levelValue');
-        const restartBtn = document.getElementById('restartButton');
-        const messageDiv = document.getElementById('gameMessage');
+        const scoreSpan = document.getElementById('scoreValue');
+        const storyBox = document.getElementById('storyBox');
+        const bossContainer = document.getElementById('bossHealthContainer');
+        const bossHpText = document.getElementById('bossHpText');
+        const bossHealthBar = document.getElementById('bossHealthBar');
+        const slowBtn = document.getElementById('slowPower');
+        const doubleBtn = document.getElementById('doublePower');
+        const healBtn = document.getElementById('healPower');
+        const restartBtn = document.getElementById('restartBtn');
 
-        // --- OYUN AYARLARI ---
         let width, height;
-        let score = 0;
-        let lives = 3;
+        let gameRunning = true;
         let level = 1;
-        let gameOver = false;
-        let animationId = null;
-        
-        // Balon dizisi
+        let targetToPop = 10;
+        let poppedInLevel = 0;
+        let lives = 5;
+        let totalScore = 0;
         let balloons = [];
+        let slowActive = false;
+        let slowTimer = null;
+        let doubleActive = false;
+        let doubleTimer = null;
+        let powerSlowCount = 1;
+        let powerDoubleCount = 1;
+        let powerHealCount = 1;
+        let isBossLevel = false;
+        let bossHealth = 100;
+        let bossMaxHealth = 100;
+        let spawnInterval = null;
+        let animationId = null;
+        let lastFrameTime = 0;
         
-        // Balon renkleri (canlı pastel)
-        const colors = [
-            '#FF6B6B', '#4ECDC4', '#FFE66D', '#FF9F4A', '#B5EAD7', 
-            '#C7CEE6', '#F6AE9A', '#B8F2E6', '#FFB7B2', '#A0E7E5'
-        ];
+        // Renkler
+        const colors = ['#FF6B6B','#4ECDC4','#FFE66D','#FF9F4A','#B5EAD7','#C7CEE6','#F6AE9A','#FFB7B2','#A0E7E5','#FF85B3'];
         
-        // --- SEVİYE BAŞINA BALON HIZI (düşme hızı px/saniye) ---
-        function getBaseSpeed(){
-            return 45 + (level-1) * 12; // seviye 1 -> 45, 5.seviye -> 93
+        // Hikaye metinleri
+        const stories = {
+            1: "🎈 Şeker Diyarı tehlikede! Balon Kralı Patlagon işgal etti. Patlatmaya başla!",
+            10: "⚔️ İlk boss savaşı! Patlagon'un yardımcısı Dev Balon geliyor!",
+            20: "🔥 Karanlık Balon Ordusu ortaya çıktı! Daha hızlılar!",
+            30: "❄️ Buz Balonları! Daha dayanıklılar (2 vuruş gerekir)",
+            40: "💀 Patlagon'un kalesine yaklaşıyorsun! Son viraj!",
+            50: "👑 SON BOSS: KRAL PATLAGON! Tüm güçlerini kullan!"
+        };
+        
+        function showStory(text, duration=2500) {
+            storyBox.style.display = 'block';
+            storyBox.innerText = text;
+            setTimeout(() => {
+                if(storyBox.innerText === text) storyBox.style.display = 'none';
+            }, duration);
         }
         
-        // BALON ÜRETME ARALIĞI (ms) - seviye düştükçe daha sık
-        let spawnInterval = null;
+        function updateUI() {
+            levelSpan.innerText = level;
+            targetSpan.innerText = targetToPop;
+            poppedSpan.innerText = poppedInLevel;
+            livesSpan.innerText = lives;
+            scoreSpan.innerText = totalScore;
+            slowBtn.innerText = `🐢 YAVAŞLAT (${powerSlowCount})`;
+            doubleBtn.innerText = `⚡ ÇİFT PATLAT (${powerDoubleCount})`;
+            healBtn.innerText = `💚 CAN DOLDUR (${powerHealCount})`;
+            if(powerSlowCount === 0) slowBtn.classList.add('disabled');
+            else slowBtn.classList.remove('disabled');
+            if(powerDoubleCount === 0) doubleBtn.classList.add('disabled');
+            else doubleBtn.classList.remove('disabled');
+            if(powerHealCount === 0) healBtn.classList.add('disabled');
+            else healBtn.classList.remove('disabled');
+        }
         
-        // Canvas yeniden boyutlandırma
+        function getBaseSpeed() {
+            let speed = 40 + (level-1) * 2.5;
+            if(slowActive) speed *= 0.4;
+            if(isBossLevel) speed *= 1.3;
+            return Math.min(speed, 150);
+        }
+        
+        function getSpawnInterval() {
+            let interval = Math.max(400, 1100 - (level-1) * 12);
+            if(isBossLevel) interval = Math.max(200, interval * 0.7);
+            if(slowActive) interval *= 1.4;
+            return interval;
+        }
+        
+        class Balloon {
+            constructor(isBossBalloon = false, isIce = false) {
+                this.radius = isBossBalloon ? 55 : (25 + Math.random() * 15);
+                this.x = 40 + Math.random() * (width - 80);
+                this.y = height + this.radius + 5;
+                let spd = getBaseSpeed() * (0.7 + Math.random() * 0.8);
+                if(isBossBalloon) spd *= 0.5;
+                this.speedY = spd;
+                this.color = isIce ? '#A8D8FF' : colors[Math.floor(Math.random()*colors.length)];
+                this.isIce = isIce;
+                this.iceHits = isIce ? 2 : 1;
+                this.isBossBalloon = isBossBalloon;
+            }
+        }
+        
+        function addBalloon() {
+            if(!gameRunning) return;
+            if(balloons.length > 60) return;
+            let isIce = (level >= 30 && !isBossLevel && Math.random() < 0.25);
+            let isBossMini = (isBossLevel && Math.random() < 0.2);
+            balloons.push(new Balloon(isBossMini, isIce));
+        }
+        
+        function popBalloonAt(clientX, clientY) {
+            if(!gameRunning) return false;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const canvasX = (clientX - rect.left) * scaleX;
+            const canvasY = (clientY - rect.top) * scaleY;
+            let popped = false;
+            for(let i=balloons.length-1; i>=0; i--) {
+                const b = balloons[i];
+                const dx = canvasX - b.x;
+                const dy = canvasY - b.y;
+                if(Math.hypot(dx,dy) < b.radius) {
+                    if(b.isIce && b.iceHits === 2) {
+                        b.iceHits = 1;
+                        b.color = '#FFAA88';
+                        popped = true;
+                        break;
+                    }
+                    balloons.splice(i,1);
+                    if(b.isBossBalloon && isBossLevel) {
+                        bossHealth -= 8;
+                        if(bossHealth <= 0) levelComplete();
+                        updateBossUI();
+                    } else {
+                        let addCount = doubleActive ? 2 : 1;
+                        for(let p=0; p<addCount; p++) {
+                            poppedInLevel++;
+                            totalScore += 10 + Math.floor(level/2);
+                        }
+                        updateUI();
+                        if(poppedInLevel >= targetToPop && !isBossLevel) levelComplete();
+                    }
+                    popped = true;
+                    playPopSound();
+                    break;
+                }
+            }
+            return popped;
+        }
+        
+        function updateBossUI() {
+            if(isBossLevel) {
+                let percent = (bossHealth / bossMaxHealth) * 100;
+                bossHpText.innerText = Math.floor(percent)+'%';
+                bossHealthBar.style.width = percent+'%';
+                if(bossHealth <= 0) levelComplete();
+            }
+        }
+        
+        function levelComplete() {
+            if(!gameRunning) return;
+            if(spawnInterval) clearInterval(spawnInterval);
+            gameRunning = false;
+            let bonus = Math.floor((targetToPop - poppedInLevel) * 5);
+            if(bonus<0) bonus=0;
+            totalScore += bonus;
+            showStory(`🎉 Bölüm ${level} geçildi! +${bonus} bonus puan!`, 1800);
+            setTimeout(() => {
+                level++;
+                if(level > 50) {
+                    gameWin();
+                    return;
+                }
+                resetLevel();
+            }, 2000);
+        }
+        
+        function gameWin() {
+            showStory("🏆 TEBRİKLER! Şeker Diyarı'nı kurtardın! KRALİÇE seni onurlandırıyor. 🏆", 5000);
+            if(spawnInterval) clearInterval(spawnInterval);
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+        }
+        
+        function resetLevel() {
+            balloons = [];
+            poppedInLevel = 0;
+            gameRunning = true;
+            isBossLevel = (level % 10 === 0);
+            if(isBossLevel) {
+                targetToPop = 0;
+                bossHealth = 100 + (Math.floor(level/10) * 30);
+                bossMaxHealth = bossHealth;
+                bossContainer.style.display = 'block';
+                updateBossUI();
+                showStory(stories[level] || `👾 BOSS SAVAŞI! Patlagon'un ${Math.floor(level/10)}. generali!`, 2000);
+                for(let i=0;i<5;i++) addBalloon();
+            } else {
+                bossContainer.style.display = 'none';
+                targetToPop = Math.min(15 + Math.floor(level/3), 45);
+                showStory(stories[level] || `Bölüm ${level}: ${targetToPop} balon patlat!`, 1500);
+                for(let i=0;i<4;i++) addBalloon();
+            }
+            updateUI();
+            if(spawnInterval) clearInterval(spawnInterval);
+            spawnInterval = setInterval(() => {
+                if(gameRunning && balloons.length < 70) addBalloon();
+            }, getSpawnInterval());
+            cancelAnimationFrame(animationId);
+            animationId = requestAnimationFrame(drawLoop);
+        }
+        
+        function looseLife() {
+            if(!gameRunning) return;
+            lives--;
+            updateUI();
+            showStory(`💔 Can kaybettin! Kalan can: ${lives}`, 800);
+            if(lives <= 0) gameOver();
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            if(spawnInterval) clearInterval(spawnInterval);
+            showStory(`💀 OYUN BİTTI! Bölüm ${level}de kaybettin. Yeniden başlat butonuna bas.`, 4000);
+            cancelAnimationFrame(animationId);
+        }
+        
+        function restartGame() {
+            level = 1;
+            lives = 5;
+            totalScore = 0;
+            powerSlowCount = 1;
+            powerDoubleCount = 1;
+            powerHealCount = 1;
+            if(slowActive) { slowActive=false; if(slowTimer) clearTimeout(slowTimer); }
+            if(doubleActive) { doubleActive=false; if(doubleTimer) clearTimeout(doubleTimer); }
+            isBossLevel = false;
+            gameRunning = true;
+            resetLevel();
+        }
+        
+        function useSlow() {
+            if(powerSlowCount<=0 || !gameRunning) return;
+            powerSlowCount--;
+            slowActive = true;
+            if(slowTimer) clearTimeout(slowTimer);
+            slowTimer = setTimeout(() => { slowActive = false; updateUI(); showStory("Yavaşlatma bitti!", 800); }, 7000);
+            updateUI();
+            showStory("🐢 Balonlar yavaşladı! (7 saniye)", 1200);
+            if(spawnInterval) { clearInterval(spawnInterval); spawnInterval = setInterval(()=>{ if(gameRunning) addBalloon(); }, getSpawnInterval()); }
+        }
+        
+        function useDouble() {
+            if(powerDoubleCount<=0 || !gameRunning) return;
+            powerDoubleCount--;
+            doubleActive = true;
+            if(doubleTimer) clearTimeout(doubleTimer);
+            doubleTimer = setTimeout(() => { doubleActive = false; updateUI(); showStory("Çift patlatma bitti", 800); }, 8000);
+            updateUI();
+            showStory("⚡ Her balon 2x puan! (8 saniye)", 1200);
+        }
+        
+        function useHeal() {
+            if(powerHealCount<=0 || !gameRunning) return;
+            powerHealCount--;
+            lives = Math.min(lives+2, 8);
+            updateUI();
+            showStory("💚 Can yenilendi! +2 can", 1200);
+        }
+        
+        function playPopSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.value = 1200; gain.gain.value = 0.08;
+                osc.type = 'triangle';
+                osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.2);
+                osc.stop(audioCtx.currentTime+0.2);
+                setTimeout(()=>audioCtx.close(), 250);
+            } catch(e) {}
+        }
+        
+        // DRAW
         function resizeCanvas() {
-            const wrapper = canvas.parentElement;
-            const rect = wrapper.getBoundingClientRect();
+            const rect = canvas.parentElement.getBoundingClientRect();
             width = rect.width;
             height = rect.height;
             canvas.width = width;
             canvas.height = height;
         }
         
-        // Yeni balon oluştur
-        function createBalloon() {
-            const radius = 28 + Math.random() * 14;  // 28-42px arası
-            const x = 30 + Math.random() * (width - 60);
-            const y = height + radius + 5;  // aşağıdan başlat
-            const speedY = getBaseSpeed() * (0.8 + Math.random() * 0.7); // biraz varyasyon
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            const id = Math.random();
-            return {
-                id, x, y, radius,
-                speedY,
-                color,
-                pop: false
-            };
-        }
-        
-        // Balon ekle
-        function addBalloon() {
-            if(gameOver) return;
-            if(balloons.length < 45) {  // max 45 balon performans
-                balloons.push(createBalloon());
-            }
-        }
-        
-        // Balon patlatma (tıklama / dokunma kontrolü)
-        function popBalloonAt(mouseX, mouseY) {
-            if(gameOver) return false;
-            let popped = false;
-            // tersten dönüyoruz çünkü en üstteki balon öncelikli hissi
-            for(let i=balloons.length-1; i>=0; i--) {
-                const b = balloons[i];
-                const dx = mouseX - b.x;
-                const dy = mouseY - b.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if(dist < b.radius) {
-                    // patlat!
-                    balloons.splice(i,1);
-                    score++;
-                    updateScoreUI();
-                    popped = true;
-                    
-                    // seviye kontrolü (her 10 puanda seviye atla)
-                    const newLevel = 1 + Math.floor(score / 10);
-                    if(newLevel > level && !gameOver) {
-                        level = newLevel;
-                        updateLevelUI();
-                        showFloatingMessage(`⚡ SEVİYE ${level} ⚡`, 800);
-                        // spawn aralığını yeniden ayarla
-                        resetSpawnInterval();
-                    }
-                    break; // bir tıklamada sadece bir balon patlasın
-                }
-            }
-            if(popped) playPopSound();
-            return popped;
-        }
-        
-        // basit pop sesi (AudioContext ile tık)
-        function playPopSound() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.frequency.value = 880;
-                gainNode.gain.value = 0.15;
-                oscillator.type = 'sine';
-                oscillator.start();
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
-                oscillator.stop(audioCtx.currentTime + 0.25);
-                // kullanıcı etkileşimi sonrası otomatik kapanır
-                setTimeout(() => { audioCtx.close().catch(e=>{}); }, 300);
-            } catch(e) { /* sessiz */ }
-        }
-        
-        // UI Güncellemeleri
-        function updateScoreUI() {
-            scoreSpan.innerText = score;
-        }
-        function updateLivesUI() {
-            livesSpan.innerText = lives;
-        }
-        function updateLevelUI() {
-            levelSpan.innerText = level;
-        }
-        
-        // Can kaybı
-        function loseLife() {
-            if(gameOver) return;
-            lives--;
-            updateLivesUI();
-            showFloatingMessage(`💔 CAN KAYBETTİN! ${lives}`, 600);
-            if(lives <= 0) {
-                gameOver = true;
-                if(spawnInterval) clearInterval(spawnInterval);
-                spawnInterval = null;
-                showGameOver();
-            }
-        }
-        
-        // Ekran mesajı (geçici)
-        function showFloatingMessage(msg, duration=700) {
-            const msgDiv = document.getElementById('gameMessage');
-            if(!msgDiv) return;
-            msgDiv.style.display = 'block';
-            msgDiv.innerText = msg;
-            setTimeout(() => {
-                if(msgDiv.innerText === msg) msgDiv.style.display = 'none';
-            }, duration);
-        }
-        
-        function showGameOver() {
-            if(!gameOver) return;
-            if(spawnInterval) clearInterval(spawnInterval);
-            spawnInterval = null;
-            const msgDiv = document.getElementById('gameMessage');
-            msgDiv.style.display = 'block';
-            msgDiv.innerText = `🎈 GAME OVER 🎈\nSkor: ${score}  Seviye: ${level}`;
-            msgDiv.style.whiteSpace = 'pre-line';
-            msgDiv.style.fontSize = '1.8rem';
-            cancelAnimationFrame(animationId);
-            animationId = null;
-        }
-        
-        // Spawn aralığını seviyeye göre ayarla (yüksek seviyede balon daha sık)
-        function resetSpawnInterval() {
-            if(spawnInterval) clearInterval(spawnInterval);
-            if(gameOver) return;
-            let intervalMs = Math.max(300, 1100 - (level-1) * 50);
-            intervalMs = Math.min(intervalMs, 1600);
-            spawnInterval = setInterval(() => {
-                if(!gameOver && balloons.length < 50) {
-                    addBalloon();
-                    // bazen çift balon (eğlence)
-                    if(level >= 3 && Math.random()<0.25 && balloons.length<48) addBalloon();
-                }
-            }, intervalMs);
-        }
-        
-        // Oyunu sıfırla
-        function restartGame() {
-            gameOver = false;
-            score = 0;
-            lives = 3;
-            level = 1;
-            balloons = [];
-            updateScoreUI();
-            updateLivesUI();
-            updateLevelUI();
-            // mesaj gizle
-            const msgDiv = document.getElementById('gameMessage');
-            msgDiv.style.display = 'none';
-            msgDiv.style.whiteSpace = 'nowrap';
-            msgDiv.style.fontSize = '';
-            
-            if(spawnInterval) clearInterval(spawnInterval);
-            resetSpawnInterval();
-            
-            // ilk başlangıçta birkaç balon ekle
-            for(let i=0;i<5;i++) addBalloon();
-            if(animationId) cancelAnimationFrame(animationId);
-            animationId = requestAnimationFrame(drawLoop);
-        }
-        
-        // --- ÇİZİM (ANİMASYON) + FIRSATÇA BALON YUKARI HAREKETİ---
-        let lastTimestamp = 0;
-        let lastFrameTime = 0;
-        
-        function drawLoop(nowMs) {
-            if(!lastFrameTime) lastFrameTime = nowMs;
-            let delta = Math.min(0.033, (nowMs - lastFrameTime) / 1000);
-            if(delta <= 0) delta = 1/60;
-            lastFrameTime = nowMs;
-            
-            if(!gameOver) {
-                // balonları hareket ettir (yukarı doğru)
+        function drawLoop(now) {
+            if(!lastFrameTime) lastFrameTime = now;
+            let delta = Math.min(0.033, (now - lastFrameTime) / 1000);
+            lastFrameTime = now;
+            if(gameRunning && delta > 0) {
                 for(let i=0; i<balloons.length; i++) {
-                    const b = balloons[i];
-                    b.y -= b.speedY * delta;
-                    // ekranın üstünden çıkmışsa can kaybı ve balonu sil
-                    if(b.y + b.radius < 0) {
+                    balloons[i].y -= balloons[i].speedY * delta;
+                    if(balloons[i].y + balloons[i].radius < 0) {
                         balloons.splice(i,1);
-                        if(!gameOver) loseLife();
+                        if(!isBossLevel && gameRunning) looseLife();
                         i--;
-                        if(gameOver) break;
+                        if(!gameRunning) break;
                     }
                 }
-                // eğer oyun bitti ise döngü durdurulabilir
-                if(gameOver) {
-                    if(spawnInterval) clearInterval(spawnInterval);
-                    spawnInterval = null;
-                    cancelAnimationFrame(animationId);
-                    animationId = null;
-                    drawCanvasStatic(); // oyun bitti ekranını çiz
-                    return;
-                }
             }
-            drawCanvasStatic();
-            if(!gameOver) animationId = requestAnimationFrame(drawLoop);
-            else if(gameOver) drawCanvasStatic();
+            drawCanvas();
+            if(gameRunning) animationId = requestAnimationFrame(drawLoop);
         }
         
-        function drawCanvasStatic() {
-            if(!ctx) return;
+        function drawCanvas() {
             ctx.clearRect(0,0,width,height);
-            // çimen efekti
             ctx.fillStyle = '#9acd32aa';
             ctx.fillRect(0, height-35, width, 45);
-            ctx.fillStyle = '#6b8e23cc';
-            ctx.fillRect(0, height-28, width, 28);
-            
-            // balonları çiz (ip + gövde)
             for(let b of balloons) {
-                // ip
                 ctx.beginPath();
                 ctx.moveTo(b.x, b.y + b.radius-6);
-                ctx.lineTo(b.x-4, b.y + b.radius + 12);
-                ctx.lineTo(b.x+4, b.y + b.radius + 12);
-                ctx.fillStyle = '#8B5A2B';
-                ctx.fill();
-                // balon gövde gölge
-                ctx.shadowColor = "rgba(0,0,0,0.2)";
-                ctx.shadowBlur = 6;
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2);
-                ctx.fillStyle = b.color;
-                ctx.fill();
-                ctx.strokeStyle = "#ffffffaa";
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-                // parlaklık efekti
-                ctx.beginPath();
-                ctx.arc(b.x-5, b.y-5, b.radius*0.25, 0, Math.PI*2);
-                ctx.fillStyle = "#ffffffcc";
-                ctx.fill();
+                ctx.lineTo(b.x-4, b.y + b.radius+10); ctx.lineTo(b.x+4, b.y + b.radius+10);
+                ctx.fillStyle = '#8B5A2B'; ctx.fill();
+                ctx.shadowBlur = 8;
+                ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2);
+                ctx.fillStyle = b.color; ctx.fill();
+                ctx.strokeStyle = 'white'; ctx.stroke();
+                ctx.beginPath(); ctx.arc(b.x-4, b.y-4, b.radius*0.2, 0, Math.PI*2);
+                ctx.fillStyle = '#ffffffcc'; ctx.fill();
+                if(b.isIce && b.iceHits===2) {
+                    ctx.fillStyle = '#88ccffcc'; ctx.font = 'bold 18px monospace';
+                    ctx.fillText('❄️', b.x-12, b.y-10);
+                }
+                if(b.isBossBalloon && isBossLevel) {
+                    ctx.fillStyle = '#ff0000cc'; ctx.font = 'bold 20px monospace';
+                    ctx.fillText('👑', b.x-15, b.y-15);
+                }
                 ctx.shadowBlur = 0;
-                // küçük fiyonk / düğüm
-                ctx.fillStyle = "#c77e3e";
-                ctx.beginPath();
-                ctx.ellipse(b.x, b.y + b.radius-4, 6, 3, 0, 0, Math.PI*2);
-                ctx.fill();
             }
-            // eğer oyun bitti ve can 0 ise son mesaj
-            if(gameOver && lives <=0) {
-                ctx.font = 'bold 36px "Segoe UI"';
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#fffaec';
-                ctx.shadowColor = 'black';
-                ctx.fillText('💥 OYUN BİTTİ 💥', width/2-130, height/2-40);
-                ctx.font = '24px monospace';
-                ctx.fillStyle = '#fff3b0';
-                ctx.fillText(`Skor: ${score}   Seviye: ${level}`, width/2-120, height/2+30);
+            if(!gameRunning && lives>0 && level<=50) {
+                ctx.font = 'bold 32px monospace'; ctx.fillStyle = '#fff3b0';
+                ctx.fillText('⏳ Bölüm geçiliyor...', width/2-150, height/2);
             }
         }
         
-        // --- OLAY DİNLEYİCİLER ---
+        // EVENT
         function handleTap(e) {
-            if(gameOver) return;
-            let clientX, clientY;
-            if(e.touches) {
-                e.preventDefault();
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            const canvasX = (clientX - rect.left) * scaleX;
-            const canvasY = (clientY - rect.top) * scaleY;
-            if(canvasX>=0 && canvasX<=width && canvasY>=0 && canvasY<=height) {
-                popBalloonAt(canvasX, canvasY);
-            }
+            if(!gameRunning) return;
+            let cx, cy;
+            if(e.touches) { e.preventDefault(); cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+            else { cx = e.clientX; cy = e.clientY; }
+            popBalloonAt(cx, cy);
         }
         
         canvas.addEventListener('click', handleTap);
-        canvas.addEventListener('touchstart', handleTap, {passive: false});
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            drawCanvasStatic();
-        });
-        restartBtn.addEventListener('click', () => {
-            if(spawnInterval) clearInterval(spawnInterval);
-            restartGame();
-        });
+        canvas.addEventListener('touchstart', handleTap, {passive:false});
+        window.addEventListener('resize', ()=>{ resizeCanvas(); drawCanvas(); });
+        slowBtn.addEventListener('click', useSlow);
+        doubleBtn.addEventListener('click', useDouble);
+        healBtn.addEventListener('click', useHeal);
+        restartBtn.addEventListener('click', ()=>{ if(spawnInterval) clearInterval(spawnInterval); restartGame(); });
         
-        // Başlangıç
         resizeCanvas();
-        restartGame();
-        // bulut efekti için ekstra başlangıç balonu
-        setTimeout(() => {
-            if(!gameOver) for(let i=0;i<3;i++) addBalloon();
-        }, 200);
-        
+        resetLevel();
+        showStory(stories[1] || "🎈 Şeker Diyarı'nı kurtarmak için balonları patlat!", 3000);
     })();
 </script>
 </body>
