@@ -3,631 +3,495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Batak Oyunu - Kozu Sen Seç</title>
+    <title>🎈 Balon Patlatmaca Oyunu</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
             user-select: none;
         }
+
         body {
-            margin: 0;
             min-height: 100vh;
-            background: linear-gradient(145deg, #1a472a 0%, #0e2a1a 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(145deg, #0b3b5f, #1b7f9e);
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
         }
-        .game-container {
-            max-width: 1300px;
+
+        .game-wrapper {
+            position: relative;
             width: 100%;
-            background: rgba(0, 20, 0, 0.5);
-            border-radius: 64px;
-            padding: 20px;
-            backdrop-filter: blur(3px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            border: 1px solid #ffd966;
-        }
-        .score-panel {
-            background: #2c2e1e;
+            max-width: 1200px;
+            height: 95vh;
+            background: radial-gradient(circle at 30% 10%, #a2e0f0, #3a8cba);
             border-radius: 48px;
-            padding: 12px 20px;
-            margin-bottom: 20px;
-            color: #ffefb0;
-            text-align: center;
-            font-weight: bold;
-            box-shadow: inset 0 0 8px #00000055, 0 6px 12px black;
-            border-bottom: 2px solid #ffcd7e;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+            overflow: hidden;
+            border: 4px solid #ffdd99;
         }
-        .bolum-bilgi {
-            font-size: 1.5rem;
-            background: #00000088;
-            display: inline-block;
-            padding: 4px 20px;
-            border-radius: 60px;
-            margin-bottom: 10px;
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: pointer;
+            touch-action: none;
         }
-        .skor-tablosu {
+
+        .ui-panel {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
             display: flex;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-        }
-        .oyuncu-kart {
-            background: #1f3b24;
-            border-radius: 28px;
-            padding: 12px 16px;
-            min-width: 120px;
-            text-align: center;
-            transition: 0.2s;
-            border: 2px solid #b8860b;
-            box-shadow: 0 6px 0 #3e2a1f;
-        }
-        .oyuncu-kart.aktif {
-            background: #c9a03d;
-            color: #1e2a0e;
-            border-color: gold;
-            transform: scale(1.02);
-            box-shadow: 0 0 0 2px #ffd966;
-        }
-        .oyuncu-isim {
-            font-size: 1.3rem;
+            padding: 10px 25px;
+            background: #000000aa;
+            backdrop-filter: blur(10px);
+            border-radius: 60px;
+            margin: 0 20px;
+            color: white;
             font-weight: bold;
+            font-size: 1.4rem;
+            z-index: 10;
+            pointer-events: none;
+            font-family: monospace;
             letter-spacing: 1px;
+            border: 1px solid #ffd966;
         }
-        .elde-aldı {
-            font-size: 0.9rem;
-            background: #00000066;
-            border-radius: 20px;
-            padding: 2px 8px;
-            margin-top: 6px;
+
+        .score-box, .lives-box, .level-box {
+            background: #1e2a2ecc;
+            padding: 6px 18px;
+            border-radius: 50px;
+            backdrop-filter: blur(4px);
         }
-        .batma-puan {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #ffd966;
-        }
-        .oyun-alani {
-            background: #1f472b;
-            border-radius: 56px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: inset 0 0 20px #00000033, 0 8px 20px black;
-        }
-        .info-kutusu {
-            background: #0c2b17;
-            border-radius: 40px;
-            padding: 12px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffefb0;
-            margin-bottom: 20px;
-            border-left: 10px solid #ffb347;
-        }
-        .kart-alani {
-            background: #2a5a3a;
-            border-radius: 40px;
-            padding: 20px;
-            min-height: 180px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            margin: 15px 0;
-            box-shadow: inset 0 0 0 2px #ffd58c55;
-        }
-        .kart {
-            background: white;
-            width: 80px;
-            height: 110px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: bold;
-            box-shadow: 0 8px 12px rgba(0,0,0,0.3);
-            cursor: pointer;
-            transition: all 0.15s ease;
-            color: black;
-            border: 2px solid #cfb284;
-        }
-        .kart:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 14px 18px black;
-        }
-        .kart.kirmizi {
-            color: #c33;
-        }
-        .butonlar {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        button {
-            background: #e5b83c;
+
+        .restart-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #ffaa33;
             border: none;
             font-size: 1.2rem;
             font-weight: bold;
-            padding: 10px 28px;
-            border-radius: 60px;
+            padding: 10px 20px;
+            border-radius: 40px;
             cursor: pointer;
-            transition: 0.1s linear;
-            color: #222;
+            z-index: 20;
             font-family: inherit;
             box-shadow: 0 4px 0 #7a4c1a;
+            transition: 0.07s linear;
+            pointer-events: auto;
+            color: #2c2e1e;
         }
-        button:active {
+
+        .restart-btn:active {
             transform: translateY(2px);
             box-shadow: 0 1px 0 #7a4c1a;
         }
-        .reset-btn {
-            background: #8b3c2c;
-            color: #ffe6c7;
-            box-shadow: 0 4px 0 #4a241a;
-        }
-        .mesaj-alani {
-            background: #000000aa;
-            border-radius: 60px;
-            padding: 12px;
-            margin-top: 20px;
+
+        .game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000000cc;
+            backdrop-filter: blur(15px);
+            color: gold;
+            font-size: 2.2rem;
             font-weight: bold;
-            font-size: 1.1rem;
+            padding: 20px 35px;
+            border-radius: 70px;
             text-align: center;
-            backdrop-filter: blur(8px);
-        }
-        .footer-imza {
-            text-align: center;
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid #ffd96655;
-            color: #ffefb0aa;
-            font-size: 0.85rem;
-            font-style: italic;
-        }
-        .koz-butonlari {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        .koz-btn {
-            background: #2c2e1e;
-            color: #ffefb0;
-            font-size: 2rem;
-            padding: 15px 25px;
-            border-radius: 20px;
+            white-space: nowrap;
+            z-index: 25;
             border: 2px solid #ffd966;
+            pointer-events: none;
+            font-family: monospace;
         }
+
         @media (max-width: 700px) {
-            .kart {
-                width: 60px;
-                height: 85px;
-                font-size: 20px;
-            }
-            .oyuncu-kart {
-                min-width: 85px;
-                font-size: 12px;
-                padding: 6px;
-            }
-            .oyuncu-isim {
+            .ui-panel {
                 font-size: 1rem;
+                padding: 6px 15px;
             }
-            .koz-btn {
-                font-size: 1.5rem;
-                padding: 10px 18px;
+            .game-message {
+                font-size: 1.4rem;
+                padding: 12px 20px;
+                white-space: nowrap;
+            }
+            .restart-btn {
+                font-size: 0.9rem;
+                padding: 6px 15px;
             }
         }
     </style>
 </head>
 <body>
-<div class="game-container" id="gameRoot"></div>
+<div class="game-wrapper">
+    <div class="ui-panel">
+        <div class="score-box">🎈 SKOR: <span id="scoreValue">0</span></div>
+        <div class="lives-box">❤️ CAN: <span id="livesValue">3</span></div>
+        <div class="level-box">⭐ SEVİYE: <span id="levelValue">1</span></div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <button class="restart-btn" id="restartButton">🎈 YENİ OYUN</button>
+    <div id="gameMessage" class="game-message" style="display: none;"></div>
+</div>
 
 <script>
-    // ---------- KART TANIMI ----------
-    const TAKIMLAR = ['♠', '♥', '♣', '♦'];
-    const TAKIM_ISIM = { '♠': 'Maça', '♥': 'Kupa', '♣': 'Sinek', '♦': 'Karo' };
-    const SIRA_DEGER = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-    const RANK_MAP = { '2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14 };
+    (function(){
+        // --- DOM ELEMANLARI ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreSpan = document.getElementById('scoreValue');
+        const livesSpan = document.getElementById('livesValue');
+        const levelSpan = document.getElementById('levelValue');
+        const restartBtn = document.getElementById('restartButton');
+        const messageDiv = document.getElementById('gameMessage');
 
-    class Kart {
-        constructor(takim, deger) {
-            this.takim = takim;
-            this.deger = deger;
-            this.rank = RANK_MAP[deger];
-        }
-        toString() { return this.deger + this.takim; }
-        renkSinif() { return (this.takim === '♥' || this.takim === '♦') ? 'kirmizi' : ''; }
-    }
-
-    // ---------- OYUN MOTORU ----------
-    class BatakOyun {
-        constructor() {
-            this.oyuncular = [
-                { isim: "🧑 SEN", insanMi: true, el: [], batma: null, alinanEl: 0, bolumPuani: 0 },
-                { isim: "👩 Ayşe", insanMi: false, el: [], batma: null, alinanEl: 0, bolumPuani: 0 },
-                { isim: "👩 Fatma", insanMi: false, el: [], batma: null, alinanEl: 0, bolumPuani: 0 },
-                { isim: "👩 Hayriye", insanMi: false, el: [], batma: null, alinanEl: 0, bolumPuani: 0 }
-            ];
-            this.deste = [];
-            this.kozTakim = null;
-            this.aktifEl = 1;
-            this.bolum = 1;
-            this.suankiTur = [];
-            this.baslatanIndex = 0;
-            this.siraIndex = 0;
-            this.asama = "BATMA";
-            this.batmaYapanSayisi = 0;
-            this.kazananMesaj = null;
-            this.uiGuncelle = null;
-        }
-
-        desteOlustur() {
-            let deste = [];
-            for(let takim of TAKIMLAR) {
-                for(let deger of SIRA_DEGER) {
-                    deste.push(new Kart(takim, deger));
-                }
-            }
-            for(let i=deste.length-1; i>0; i--) {
-                const j = Math.floor(Math.random()*(i+1));
-                [deste[i], deste[j]] = [deste[j], deste[i]];
-            }
-            return deste;
-        }
-
-        dagitVeHazirla() {
-            let deste = this.desteOlustur();
-            for(let oy of this.oyuncular) {
-                oy.el = [];
-                oy.batma = null;
-                oy.alinanEl = 0;
-            }
-            for(let i=0; i<deste.length; i++) {
-                this.oyuncular[i%4].el.push(deste[i]);
-            }
-            for(let oy of this.oyuncular) {
-                oy.el.sort((a,b)=>b.rank - a.rank);
-            }
-        }
-
-        yeniElBaslat() {
-            this.dagitVeHazirla();
-            this.kozTakim = null;
-            this.asama = "BATMA";
-            this.batmaYapanSayisi = 0;
-            this.suankiTur = [];
-            this.siraIndex = this.baslatanIndex;
-            this.uiGuncelle?.();
-        }
-
-        insanBatma(batmaSayisi) {
-            if(this.asama !== "BATMA") return false;
-            let insan = this.oyuncular[0];
-            if(insan.batma !== null) return false;
-            insan.batma = batmaSayisi;
-            this.batmaYapanSayisi++;
-            this.siraIndex = (this.siraIndex+1)%4;
-            this.uiGuncelle?.();
-            if(this.batmaYapanSayisi === 4) this.kozSecimAsamasi();
-            else this.botBatmaYap();
-            return true;
-        }
-
-        botBatmaYap() {
-            if(this.asama !== "BATMA") return;
-            for(let i=0; i<4; i++) {
-                if(this.siraIndex === i && !this.oyuncular[i].insanMi && this.oyuncular[i].batma === null) {
-                    let bot = this.oyuncular[i];
-                    let yuksekKart = bot.el.filter(k => k.deger === 'A' || k.deger === 'K').length;
-                    let tahmin = Math.min(10, 4 + yuksekKart + Math.floor(Math.random()*4));
-                    bot.batma = tahmin;
-                    this.batmaYapanSayisi++;
-                    this.siraIndex = (this.siraIndex+1)%4;
-                    this.uiGuncelle?.();
-                    if(this.batmaYapanSayisi === 4) this.kozSecimAsamasi();
-                    else this.botBatmaYap();
-                    break;
-                }
-            }
-        }
-
-        kozSecimAsamasi() {
-            this.asama = "KOZ_SEC";
-            this.uiGuncelle?.();
-        }
-
-        kozSec(takim) {
-            if(this.asama !== "KOZ_SEC") return;
-            this.kozTakim = takim;
-            this.asama = "OYNA";
-            this.suankiTur = [];
-            this.siraIndex = this.baslatanIndex;
-            this.uiGuncelle?.();
-            this.botOynamaZinciri();
-        }
-
-        kartGecerliMi(kart, oyuncuIdx) {
-            if(this.asama !== "OYNA") return false;
-            const oyuncu = this.oyuncular[oyuncuIdx];
-            if(this.suankiTur.length === 0) return true;
-            const liderTakim = this.suankiTur[0].kart.takim;
-            const ayniRenkVar = oyuncu.el.some(k => k.takim === liderTakim);
-            if(ayniRenkVar && kart.takim !== liderTakim) return false;
-            return true;
-        }
-
-        kartOyna(oyuncuIdx, kart) {
-            if(this.asama !== "OYNA") return false;
-            if(this.siraIndex !== oyuncuIdx) return false;
-            if(!this.kartGecerliMi(kart, oyuncuIdx)) return false;
-            
-            const oyuncu = this.oyuncular[oyuncuIdx];
-            const kartIndex = oyuncu.el.findIndex(k => k.takim === kart.takim && k.deger === kart.deger);
-            if(kartIndex === -1) return false;
-            oyuncu.el.splice(kartIndex,1);
-            this.suankiTur.push({ oyuncuIdx, kart });
-            this.siraIndex = (this.siraIndex+1)%4;
-            this.uiGuncelle?.();
-            
-            if(this.suankiTur.length === 4) this.turuCoz();
-            else this.botOynamaZinciri();
-            return true;
-        }
-
-        botOynamaZinciri() {
-            if(this.asama !== "OYNA") return;
-            while(this.siraIndex < 4 && this.suankiTur.length < 4 && !this.oyuncular[this.siraIndex].insanMi) {
-                let bot = this.oyuncular[this.siraIndex];
-                let gecerliKartlar = bot.el;
-                if(this.suankiTur.length > 0) {
-                    let liderTakim = this.suankiTur[0].kart.takim;
-                    let ayniRenkVar = bot.el.some(k => k.takim === liderTakim);
-                    if(ayniRenkVar) gecerliKartlar = bot.el.filter(k => k.takim === liderTakim);
-                }
-                let secilenKart = gecerliKartlar[0];
-                let kartIndex = bot.el.findIndex(k=>k===secilenKart);
-                bot.el.splice(kartIndex,1);
-                this.suankiTur.push({ oyuncuIdx: this.siraIndex, kart: secilenKart });
-                this.siraIndex = (this.siraIndex+1)%4;
-                this.uiGuncelle?.();
-                if(this.suankiTur.length === 4) {
-                    this.turuCoz();
-                    break;
-                }
-            }
-        }
-
-        turuCoz() {
-            let kazananIdx = this.suankiTur[0].oyuncuIdx;
-            let kazananKart = this.suankiTur[0].kart;
-            for(let i=1; i<this.suankiTur.length; i++) {
-                let kart = this.suankiTur[i].kart;
-                let onceki = kazananKart;
-                let ustunluk = false;
-                if(kart.takim === this.kozTakim && onceki.takim !== this.kozTakim) ustunluk = true;
-                else if(kart.takim === this.kozTakim && onceki.takim === this.kozTakim && kart.rank > onceki.rank) ustunluk = true;
-                else if(kart.takim === onceki.takim && kart.rank > onceki.rank) ustunluk = true;
-                if(ustunluk) {
-                    kazananIdx = this.suankiTur[i].oyuncuIdx;
-                    kazananKart = kart;
-                }
-            }
-            this.oyuncular[kazananIdx].alinanEl++;
-            this.baslatanIndex = kazananIdx;
-            this.siraIndex = kazananIdx;
-            this.suankiTur = [];
-            this.uiGuncelle?.();
-            if(this.oyuncular[0].el.length === 0) this.eliBitirPuanla();
-            else this.botOynamaZinciri();
-        }
-
-        eliBitirPuanla() {
-            for(let i=0; i<4; i++) {
-                let oy = this.oyuncular[i];
-                let fark = oy.alinanEl - oy.batma;
-                if(fark >= 0) oy.bolumPuani += (10 * oy.batma) + fark;
-                else oy.bolumPuani -= (10 * oy.batma);
-            }
-            if(this.aktifEl === 3) {
-                this.bolumSonuKontrol();
-            } else {
-                this.aktifEl++;
-                this.yeniElBaslat();
-            }
-        }
-
-        bolumSonuKontrol() {
-            let insanPuan = this.oyuncular[0].bolumPuani;
-            let botOrt = (this.oyuncular[1].bolumPuani + this.oyuncular[2].bolumPuani + this.oyuncular[3].bolumPuani) / 3;
-            if(insanPuan > botOrt) {
-                if(this.bolum === 1) {
-                    this.bolum = 2;
-                    this.aktifEl = 1;
-                    this.baslatanIndex = 0;
-                    for(let oy of this.oyuncular) oy.bolumPuani = 0;
-                    this.yeniElBaslat();
-                    this.uiGuncelle?.();
-                    this.mesajGoster("🎉 BÖLÜM 1 GEÇİLDİ! 2. Bölüm başlıyor! 🎉", 3000);
-                } else {
-                    this.asama = "OYUN_BITTI";
-                    this.kazananMesaj = "🏆 TEBRİKLER! 2 Bölümü de kazandınız! 🏆";
-                    this.uiGuncelle?.();
-                }
-            } else {
-                this.asama = "OYUN_BITTI";
-                this.kazananMesaj = "😵 Kaybettiniz... Tekrar denemek için 'OYUNU SIFIRLA'";
-                this.uiGuncelle?.();
-            }
-        }
-
-        mesajGoster(msg, sure=2000) {
-            const mesajDiv = document.getElementById('mesajDinamik');
-            if(mesajDiv) {
-                mesajDiv.innerText = msg;
-                setTimeout(()=> {
-                    if(mesajDiv.innerText === msg) mesajDiv.innerText = "✨ Hamle yapmak için kartlara tıkla ✨";
-                }, sure);
-            }
-        }
-
-        oyunuSifirla() {
-            this.bolum = 1;
-            this.aktifEl = 1;
-            this.asama = "BATMA";
-            this.baslatanIndex = 0;
-            this.kazananMesaj = null;
-            for(let oy of this.oyuncular) {
-                oy.bolumPuani = 0;
-                oy.batma = null;
-                oy.alinanEl = 0;
-            }
-            this.yeniElBaslat();
-            this.uiGuncelle?.();
-            this.mesajGoster("Oyun sıfırlandı! Yeni macera başlıyor.", 2000);
-        }
-
-        bagleUI(callback) {
-            this.uiGuncelle = callback;
-        }
-    }
-
-    // ---------- ARAYÜZ RENDER ----------
-    let oyun = new BatakOyun();
-
-    function renderUI() {
-        const root = document.getElementById('gameRoot');
-        if(!root) return;
-        const oyuncular = oyun.oyuncular;
-        const asama = oyun.asama;
-        const aktifEl = oyun.aktifEl;
-        const bolum = oyun.bolum;
-        const koz = oyun.kozTakim;
-        const siradaki = oyun.siraIndex;
-        const turdakiKartlar = oyun.suankiTur;
-
-        let html = `
-            <div class="score-panel">
-                <div class="bolum-bilgi">📀 BÖLÜM ${bolum} / 2 &nbsp;|&nbsp; 🃟 EL ${aktifEl} / 3</div>
-                <div class="skor-tablosu">
-        `;
-        for(let i=0; i<oyuncular.length; i++) {
-            const o = oyuncular[i];
-            const aktifSinif = (asama === "OYNA" && siradaki === i && !o.insanMi) ? 'aktif' : (asama === "OYNA" && siradaki === i && o.insanMi ? 'aktif' : '');
-            html += `
-                <div class="oyuncu-kart ${aktifSinif}">
-                    <div class="oyuncu-isim">${o.isim}</div>
-                    <div class="elde-aldı">🃟 Aldığı el: ${o.alinanEl}</div>
-                    <div class="batma-puan">🎯 Batma: ${o.batma !== null ? o.batma : '?'}</div>
-                    <div>⭐ Puan: ${o.bolumPuani}</div>
-                </div>
-            `;
-        }
-
-        html += `</div></div>`;
-        html += `<div class="oyun-alani">`;
-        html += `<div class="info-kutusu">♜ KOZ: ${koz ? TAKIM_ISIM[koz] : 'Belirlenmedi'} &nbsp;|&nbsp; Sıra: ${oyuncular[siradaki]?.isim || '-'}</div>`;
-
-        if(turdakiKartlar.length > 0) {
-            html += `<div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; background:#1f472b; border-radius:32px; padding:8px;">`;
-            for(let item of turdakiKartlar) {
-                let kart = item.kart;
-                let renkClass = (kart.takim === '♥' || kart.takim === '♦') ? 'kirmizi' : '';
-                html += `<div class="kart ${renkClass}" style="cursor:default; opacity:0.9;">${kart.toString()}</div>`;
-            }
-            html += `</div>`;
-        }
-
-        html += `<div class="kart-alani" id="insanKartAlani">`;
-
-        // KOZ SEÇİM AŞAMASI (eller görünür)
-        if(asama === "KOZ_SEC") {
-            html += `<div style="width:100%; text-align:center; margin-bottom:10px; font-size:1.3rem;">🎯 ELİNİ GÖR ve KOZ RENGİNİ SEÇ! 🎯</div>`;
-            // senin elini göster
-            html += `<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:20px;">`;
-            for(let kart of oyuncular[0].el) {
-                let renkClass = (kart.takim === '♥' || kart.takim === '♦') ? 'kirmizi' : '';
-                html += `<div class="kart ${renkClass}" style="cursor:default;">${kart.toString()}</div>`;
-            }
-            html += `</div>`;
-            html += `<div class="koz-butonlari">`;
-            for(let takim of TAKIMLAR) {
-                html += `<button class="koz-btn" data-koz="${takim}">${takim} ${TAKIM_ISIM[takim]}</button>`;
-            }
-            html += `</div>`;
-        }
-        else if(asama === "BATMA" && oyuncular[0].batma === null) {
-            html += `<div style="width:100%; text-align:center; margin-bottom:10px;">🎲 BATMA SEÇ (0-13):</div>`;
-            for(let b=0; b<=13; b++) {
-                html += `<button class="batma-btn" data-bid="${b}">${b}</button>`;
-            }
-        } 
-        else if(asama === "OYNA" && oyuncular[0].insanMi && oyuncular[0].el.length>0) {
-            for(let kart of oyuncular[0].el) {
-                let renkClass = (kart.takim === '♥' || kart.takim === '♦') ? 'kirmizi' : '';
-                html += `<div class="kart ${renkClass}" data-card='${JSON.stringify({takim:kart.takim, deger:kart.deger})}'>${kart.toString()}</div>`;
-            }
-        } else if(asama === "BATMA" && oyuncular[0].batma !== null) {
-            html += `<div style="padding:20px;">🤖 Ayşe, Fatma ve Hayriye batma yapıyor... Lütfen bekleyin</div>`;
-        } else if(asama === "OYNA" && oyuncular[0].insanMi && oyuncular[0].el.length===0) {
-            html += `<div>El bitti, sıra puanlamada...</div>`;
-        }
-
-        html += `</div><div class="butonlar"><button id="sifirlaButon" class="reset-btn">🔄 OYUNU SIFIRLA</button></div>`;
-        html += `<div id="mesajDinamik" class="mesaj-alani">✨ Önce batma yap, sonra koz seç ✨</div>`;
-        if(oyun.kazananMesaj) {
-            html += `<div class="mesaj-alani" style="background:#ffd966;color:#1e3a1e;">${oyun.kazananMesaj}</div>`;
-        }
-        html += `</div>`;
+        // --- OYUN AYARLARI ---
+        let width, height;
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        let gameOver = false;
+        let animationId = null;
         
-        // İMZA
-        html += `<div class="footer-imza">🎴 Bu oyun <strong>Samet Dayı</strong> tarafından yapılmıştır. Keyifli oyunlar! 🎴</div>`;
+        // Balon dizisi
+        let balloons = [];
         
-        html += `</div>`;
-        root.innerHTML = html;
-
-        // Eventler
-        if(asama === "BATMA" && oyuncular[0].batma === null) {
-            document.querySelectorAll('.batma-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    let bid = parseInt(btn.getAttribute('data-bid'));
-                    oyun.insanBatma(bid);
-                });
-            });
+        // Balon renkleri (canlı pastel)
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#FFE66D', '#FF9F4A', '#B5EAD7', 
+            '#C7CEE6', '#F6AE9A', '#B8F2E6', '#FFB7B2', '#A0E7E5'
+        ];
+        
+        // --- SEVİYE BAŞINA BALON HIZI (düşme hızı px/saniye) ---
+        function getBaseSpeed(){
+            return 45 + (level-1) * 12; // seviye 1 -> 45, 5.seviye -> 93
         }
-        if(asama === "KOZ_SEC") {
-            document.querySelectorAll('.koz-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    let kozTakim = btn.getAttribute('data-koz');
-                    oyun.kozSec(kozTakim);
-                });
-            });
+        
+        // BALON ÜRETME ARALIĞI (ms) - seviye düştükçe daha sık
+        let spawnInterval = null;
+        
+        // Canvas yeniden boyutlandırma
+        function resizeCanvas() {
+            const wrapper = canvas.parentElement;
+            const rect = wrapper.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
+            canvas.width = width;
+            canvas.height = height;
         }
-        if(asama === "OYNA") {
-            document.querySelectorAll('.kart[data-card]').forEach(kartElem => {
-                kartElem.addEventListener('click', (e) => {
-                    const kartData = JSON.parse(kartElem.getAttribute('data-card'));
-                    const kartNesne = new Kart(kartData.takim, kartData.deger);
-                    oyun.kartOyna(0, kartNesne);
-                });
-            });
+        
+        // Yeni balon oluştur
+        function createBalloon() {
+            const radius = 28 + Math.random() * 14;  // 28-42px arası
+            const x = 30 + Math.random() * (width - 60);
+            const y = height + radius + 5;  // aşağıdan başlat
+            const speedY = getBaseSpeed() * (0.8 + Math.random() * 0.7); // biraz varyasyon
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const id = Math.random();
+            return {
+                id, x, y, radius,
+                speedY,
+                color,
+                pop: false
+            };
         }
-        document.getElementById('sifirlaButon')?.addEventListener('click', () => {
-            oyun.oyunuSifirla();
+        
+        // Balon ekle
+        function addBalloon() {
+            if(gameOver) return;
+            if(balloons.length < 45) {  // max 45 balon performans
+                balloons.push(createBalloon());
+            }
+        }
+        
+        // Balon patlatma (tıklama / dokunma kontrolü)
+        function popBalloonAt(mouseX, mouseY) {
+            if(gameOver) return false;
+            let popped = false;
+            // tersten dönüyoruz çünkü en üstteki balon öncelikli hissi
+            for(let i=balloons.length-1; i>=0; i--) {
+                const b = balloons[i];
+                const dx = mouseX - b.x;
+                const dy = mouseY - b.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < b.radius) {
+                    // patlat!
+                    balloons.splice(i,1);
+                    score++;
+                    updateScoreUI();
+                    popped = true;
+                    
+                    // seviye kontrolü (her 10 puanda seviye atla)
+                    const newLevel = 1 + Math.floor(score / 10);
+                    if(newLevel > level && !gameOver) {
+                        level = newLevel;
+                        updateLevelUI();
+                        showFloatingMessage(`⚡ SEVİYE ${level} ⚡`, 800);
+                        // spawn aralığını yeniden ayarla
+                        resetSpawnInterval();
+                    }
+                    break; // bir tıklamada sadece bir balon patlasın
+                }
+            }
+            if(popped) playPopSound();
+            return popped;
+        }
+        
+        // basit pop sesi (AudioContext ile tık)
+        function playPopSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.15;
+                oscillator.type = 'sine';
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+                oscillator.stop(audioCtx.currentTime + 0.25);
+                // kullanıcı etkileşimi sonrası otomatik kapanır
+                setTimeout(() => { audioCtx.close().catch(e=>{}); }, 300);
+            } catch(e) { /* sessiz */ }
+        }
+        
+        // UI Güncellemeleri
+        function updateScoreUI() {
+            scoreSpan.innerText = score;
+        }
+        function updateLivesUI() {
+            livesSpan.innerText = lives;
+        }
+        function updateLevelUI() {
+            levelSpan.innerText = level;
+        }
+        
+        // Can kaybı
+        function loseLife() {
+            if(gameOver) return;
+            lives--;
+            updateLivesUI();
+            showFloatingMessage(`💔 CAN KAYBETTİN! ${lives}`, 600);
+            if(lives <= 0) {
+                gameOver = true;
+                if(spawnInterval) clearInterval(spawnInterval);
+                spawnInterval = null;
+                showGameOver();
+            }
+        }
+        
+        // Ekran mesajı (geçici)
+        function showFloatingMessage(msg, duration=700) {
+            const msgDiv = document.getElementById('gameMessage');
+            if(!msgDiv) return;
+            msgDiv.style.display = 'block';
+            msgDiv.innerText = msg;
+            setTimeout(() => {
+                if(msgDiv.innerText === msg) msgDiv.style.display = 'none';
+            }, duration);
+        }
+        
+        function showGameOver() {
+            if(!gameOver) return;
+            if(spawnInterval) clearInterval(spawnInterval);
+            spawnInterval = null;
+            const msgDiv = document.getElementById('gameMessage');
+            msgDiv.style.display = 'block';
+            msgDiv.innerText = `🎈 GAME OVER 🎈\nSkor: ${score}  Seviye: ${level}`;
+            msgDiv.style.whiteSpace = 'pre-line';
+            msgDiv.style.fontSize = '1.8rem';
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+        
+        // Spawn aralığını seviyeye göre ayarla (yüksek seviyede balon daha sık)
+        function resetSpawnInterval() {
+            if(spawnInterval) clearInterval(spawnInterval);
+            if(gameOver) return;
+            let intervalMs = Math.max(300, 1100 - (level-1) * 50);
+            intervalMs = Math.min(intervalMs, 1600);
+            spawnInterval = setInterval(() => {
+                if(!gameOver && balloons.length < 50) {
+                    addBalloon();
+                    // bazen çift balon (eğlence)
+                    if(level >= 3 && Math.random()<0.25 && balloons.length<48) addBalloon();
+                }
+            }, intervalMs);
+        }
+        
+        // Oyunu sıfırla
+        function restartGame() {
+            gameOver = false;
+            score = 0;
+            lives = 3;
+            level = 1;
+            balloons = [];
+            updateScoreUI();
+            updateLivesUI();
+            updateLevelUI();
+            // mesaj gizle
+            const msgDiv = document.getElementById('gameMessage');
+            msgDiv.style.display = 'none';
+            msgDiv.style.whiteSpace = 'nowrap';
+            msgDiv.style.fontSize = '';
+            
+            if(spawnInterval) clearInterval(spawnInterval);
+            resetSpawnInterval();
+            
+            // ilk başlangıçta birkaç balon ekle
+            for(let i=0;i<5;i++) addBalloon();
+            if(animationId) cancelAnimationFrame(animationId);
+            animationId = requestAnimationFrame(drawLoop);
+        }
+        
+        // --- ÇİZİM (ANİMASYON) + FIRSATÇA BALON YUKARI HAREKETİ---
+        let lastTimestamp = 0;
+        let lastFrameTime = 0;
+        
+        function drawLoop(nowMs) {
+            if(!lastFrameTime) lastFrameTime = nowMs;
+            let delta = Math.min(0.033, (nowMs - lastFrameTime) / 1000);
+            if(delta <= 0) delta = 1/60;
+            lastFrameTime = nowMs;
+            
+            if(!gameOver) {
+                // balonları hareket ettir (yukarı doğru)
+                for(let i=0; i<balloons.length; i++) {
+                    const b = balloons[i];
+                    b.y -= b.speedY * delta;
+                    // ekranın üstünden çıkmışsa can kaybı ve balonu sil
+                    if(b.y + b.radius < 0) {
+                        balloons.splice(i,1);
+                        if(!gameOver) loseLife();
+                        i--;
+                        if(gameOver) break;
+                    }
+                }
+                // eğer oyun bitti ise döngü durdurulabilir
+                if(gameOver) {
+                    if(spawnInterval) clearInterval(spawnInterval);
+                    spawnInterval = null;
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                    drawCanvasStatic(); // oyun bitti ekranını çiz
+                    return;
+                }
+            }
+            drawCanvasStatic();
+            if(!gameOver) animationId = requestAnimationFrame(drawLoop);
+            else if(gameOver) drawCanvasStatic();
+        }
+        
+        function drawCanvasStatic() {
+            if(!ctx) return;
+            ctx.clearRect(0,0,width,height);
+            // çimen efekti
+            ctx.fillStyle = '#9acd32aa';
+            ctx.fillRect(0, height-35, width, 45);
+            ctx.fillStyle = '#6b8e23cc';
+            ctx.fillRect(0, height-28, width, 28);
+            
+            // balonları çiz (ip + gövde)
+            for(let b of balloons) {
+                // ip
+                ctx.beginPath();
+                ctx.moveTo(b.x, b.y + b.radius-6);
+                ctx.lineTo(b.x-4, b.y + b.radius + 12);
+                ctx.lineTo(b.x+4, b.y + b.radius + 12);
+                ctx.fillStyle = '#8B5A2B';
+                ctx.fill();
+                // balon gövde gölge
+                ctx.shadowColor = "rgba(0,0,0,0.2)";
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2);
+                ctx.fillStyle = b.color;
+                ctx.fill();
+                ctx.strokeStyle = "#ffffffaa";
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                // parlaklık efekti
+                ctx.beginPath();
+                ctx.arc(b.x-5, b.y-5, b.radius*0.25, 0, Math.PI*2);
+                ctx.fillStyle = "#ffffffcc";
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                // küçük fiyonk / düğüm
+                ctx.fillStyle = "#c77e3e";
+                ctx.beginPath();
+                ctx.ellipse(b.x, b.y + b.radius-4, 6, 3, 0, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // eğer oyun bitti ve can 0 ise son mesaj
+            if(gameOver && lives <=0) {
+                ctx.font = 'bold 36px "Segoe UI"';
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#fffaec';
+                ctx.shadowColor = 'black';
+                ctx.fillText('💥 OYUN BİTTİ 💥', width/2-130, height/2-40);
+                ctx.font = '24px monospace';
+                ctx.fillStyle = '#fff3b0';
+                ctx.fillText(`Skor: ${score}   Seviye: ${level}`, width/2-120, height/2+30);
+            }
+        }
+        
+        // --- OLAY DİNLEYİCİLER ---
+        function handleTap(e) {
+            if(gameOver) return;
+            let clientX, clientY;
+            if(e.touches) {
+                e.preventDefault();
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const canvasX = (clientX - rect.left) * scaleX;
+            const canvasY = (clientY - rect.top) * scaleY;
+            if(canvasX>=0 && canvasX<=width && canvasY>=0 && canvasY<=height) {
+                popBalloonAt(canvasX, canvasY);
+            }
+        }
+        
+        canvas.addEventListener('click', handleTap);
+        canvas.addEventListener('touchstart', handleTap, {passive: false});
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            drawCanvasStatic();
         });
-    }
-
-    oyun.bagleUI(() => renderUI());
-    oyun.yeniElBaslat();
-    setTimeout(() => {
-        if(oyun.asama === "BATMA") oyun.botBatmaYap();
-    }, 200);
+        restartBtn.addEventListener('click', () => {
+            if(spawnInterval) clearInterval(spawnInterval);
+            restartGame();
+        });
+        
+        // Başlangıç
+        resizeCanvas();
+        restartGame();
+        // bulut efekti için ekstra başlangıç balonu
+        setTimeout(() => {
+            if(!gameOver) for(let i=0;i<3;i++) addBalloon();
+        }, 200);
+        
+    })();
 </script>
 </body>
 </html>
