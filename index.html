@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Batak Oyunu - 2 Bölümlük</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1a472a 0%, #0e2a1a 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* Oyun kartı (ana container) */
+        .game-container {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(0, 20, 0, 0.5);
+            border-radius: 64px;
+            padding: 20px;
+            backdrop-filter: blur(3px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid #ffd966;
+        }
+
+        /* Skor paneli */
+        .score-panel {
+            background: #2c2e1e;
+            border-radius: 48px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            color: #ffefb0;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: inset 0 0 8px #00000055, 0 6px 12px black;
+            border-bottom: 2px solid #ffcd7e;
+        }
+
+        .bolum-bilgi {
+            font-size: 1.5rem;
+            background: #00000088;
+            display: inline-block;
+            padding: 4px 20px;
+            border-radius: 60px;
+            margin-bottom: 10px;
+        }
+
+        .skor-tablosu {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .oyuncu-kart {
+            background: #1f3b24;
+            border-radius: 28px;
+            padding: 12px 16px;
+            min-width: 120px;
+            text-align: center;
+            transition: 0.2s;
+            border: 2px solid #b8860b;
+            box-shadow: 0 6px 0 #3e2a1f;
+        }
+
+        .oyuncu-kart.aktif {
+            background: #c9a03d;
+            color: #1e2a0e;
+            border-color: gold;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 2px #ffd966;
+        }
+
+        .oyuncu-isim {
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .elde-aldı {
+            font-size: 0.9rem;
+            background: #00000066;
+            border-radius: 20px;
+            padding: 2px 8px;
+            margin-top: 6px;
+        }
+
+        .batma-puan {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffd966;
+        }
+
+        /* Oyun alanı (kartlar + mesajlar) */
+        .oyun-alani {
+            background: #1f472b;
+            border-radius: 56px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: inset 0 0 20px #00000033, 0 8px 20px black;
+        }
+
+        .info-kutusu {
+            background: #0c2b17;
+            border-radius: 40px;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffefb0;
+            margin-bottom: 20px;
+            border-left: 10px solid #ffb347;
+        }
+
+        .kart-alani {
+            background: #2a5a3a;
+            border-radius: 40px;
+            padding: 20px;
+            min-height: 180px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0;
+            box-shadow: inset 0 0 0 2px #ffd58c55;
+        }
+
+        /* Kart tasarımı */
+        .kart {
+            background: white;
+            width: 80px;
+            height: 110px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: black;
+            border: 2px solid #cfb284;
+        }
+
+        .kart:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 14px 18px black;
+        }
+
+        .kart.kirmizi {
+            color: #c33;
+        }
+
+        .butonlar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #e5b83c;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px 28px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.1s linear;
+            color: #222;
+            font-family: inherit;
+            box-shadow: 0 4px 0 #7a4c1a;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #7a4c1a;
+        }
+
+        .reset-btn {
+            background: #8b3c2c;
+            color: #ffe6c7;
+            box-shadow: 0 4px 0 #4a241a;
+        }
+
+        .mesaj-alani {
+            background: #000000aa;
+            border-radius: 60px;
+            padding: 12px;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+
+        @media (max-width: 700px) {
+            .kart {
+                width: 60px;
+                height: 85px;
+                font-size: 20px;
+            }
+            .oyuncu-kart {
+                min-width: 85px;
+                font-size: 12px;
+                padding: 6px;
+            }
+            .oyuncu-isim {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameRoot">
+    <!-- dinamik içerik js ile doldurulacak -->
+</div>
+
+<script>
+    // ---------- KART TANIMI ----------
+    const TAKIMLAR = ['♠', '♥', '♣', '♦'];
+    const TAKIM_ISIM = { '♠': 'Maça', '♥': 'Kupa', '♣': 'Sinek', '♦': 'Karo' };
+    const SIRA_DEGER = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+    const RANK_MAP = { '2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14 };
+
+    class Kart {
+        constructor(takim, deger) {
+            this.takim = takim;
+            this.deger = deger;
+            this.rank = RANK_MAP[deger];
+        }
+        toString() { return this.deger + this.takim; }
+        renkSinif() { return (this.takim === '♥' || this.takim === '♦') ? 'kirmizi' : ''; }
+    }
+
+    // ---------- OYUN MOTORU ----------
+    class BatakOyun {
+        constructor() {
+            this.oyuncular = [
+                { isim: "🧑 SEN", insanMi: true, el: [], batma: null, alinanEl: 0, bolumPuani: 0 },
+                { isim: "🤖 ZekaBot", insanMi: false, el: [], batma: null, alinanEl: 0, bolumPuani: 0 },
+                { isim: "🤖 KaraBot", insanMi: false, el: [], batma: null, alinanEl: 0, bolumPuani: 0 },
+                { isim: "🤖 AsesBot", insanMi: false, el: [], batma: null, alinanEl: 0, bolumPuani: 0 }
+            ];
+            this.deste = [];
+            this.kozTakim = null;
+            this.aktifEl = 1;        // 1,2,3 (toplam 3 el)
+            this.bolum = 1;           // 1 veya 2
+            this.suankiTur = [];      // {oyuncuIdx, kart}
+            this.baslatanIndex = 0;
+            this.siraIndex = 0;
+            this.asama = "BATMA";     // BATMA, OYNA, BOLUM_SONU, OYUN_BITTI
+            this.batmaYapanSayisi = 0;
+            this.kazananMesaj = null;
+            this.uiGuncelle = null;    // callback
+        }
+
+        // deste oluştur ve karıştır
+        desteOlustur() {
+            let deste = [];
+            for(let takim of TAKIMLAR) {
+                for(let deger of SIRA_DEGER) {
+                    deste.push(new Kart(takim, deger));
+                }
+            }
+            for(let i=deste.length-1; i>0; i--) {
+                const j = Math.floor(Math.random()*(i+1));
+                [deste[i], deste[j]] = [deste[j], deste[i]];
+            }
+            return deste;
+        }
+
+        dagitVeHazirla() {
+            let deste = this.desteOlustur();
+            for(let oy of this.oyuncular) {
+                oy.el = [];
+                oy.batma = null;
+                oy.alinanEl = 0;
+            }
+            for(let i=0; i<deste.length; i++) {
+                this.oyuncular[i%4].el.push(deste[i]);
+            }
+            // elleri sırala (büyükten küçüğe)
+            for(let oy of this.oyuncular) {
+                oy.el.sort((a,b)=>b.rank - a.rank);
+            }
+        }
+
+        yeniElBaslat() {
+            this.dagitVeHazirla();
+            this.kozTakim = null;
+            this.asama = "BATMA";
+            this.batmaYapanSayisi = 0;
+            this.suankiTur = [];
+            this.siraIndex = this.baslatanIndex;
+            this.uiGuncelle?.();
+        }
+
+        // insan batma seçimi
+        insanBatma(batmaSayisi) {
+            if(this.asama !== "BATMA") return false;
+            let insan = this.oyuncular[0];
+            if(insan.batma !== null) return false;
+            insan.batma = batmaSayisi;
+            this.batmaYapanSayisi++;
+            this.siraIndex = (this.siraIndex+1)%4;
+            this.uiGuncelle?.();
+            if(this.batmaYapanSayisi === 4) this.kozSecVeOynamaBaslat();
+            else this.botBatmaYap();
+            return true;
+        }
+
+        botBatmaYap() {
+            if(this.asama !== "BATMA") return;
+            for(let i=0; i<4; i++) {
+                if(this.siraIndex === i && !this.oyuncular[i].insanMi && this.oyuncular[i].batma === null) {
+                    let bot = this.oyuncular[i];
+                    let yuksekKart = bot.el.filter(k => k.deger === 'A' || k.deger === 'K').length;
+                    let tahmin = Math.min(10, 4 + yuksekKart + Math.floor(Math.random()*4));
+                    bot.batma = tahmin;
+                    this.batmaYapanSayisi++;
+                    this.siraIndex = (this.siraIndex+1)%4;
+                    this.uiGuncelle?.();
+                    if(this.batmaYapanSayisi === 4) this.kozSecVeOynamaBaslat();
+                    else this.botBatmaYap();
+                    break;
+                }
+            }
+        }
+
+        kozSecVeOynamaBaslat() {
+            // insanın en çok rengini koz yap (gerçek batak ruhu)
+            let renkSay = { '♠':0, '♥':0, '♣':0, '♦':0 };
+            for(let kart of this.oyuncular[0].el) renkSay[kart.takim]++;
+            let enCokRenk = '♠';
+            for(let r in renkSay) if(renkSay[r] > renkSay[enCokRenk]) enCokRenk = r;
+            this.kozTakim = enCokRenk;
+            this.asama = "OYNA";
+            this.suankiTur = [];
+            this.siraIndex = this.baslatanIndex;
+            this.uiGuncelle?.();
+            this.botOynamaZinciri();
+        }
+
+        // geçerli kart kontrolü
+        kartGecerliMi(kart, oyuncuIdx) {
+            if(this.asama !== "OYNA") return false;
+            const oyuncu = this.oyuncular[oyuncuIdx];
+            if(this.suankiTur.length === 0) return true;
+            const liderTakim = this.suankiTur[0].kart.takim;
+            const ayniRenkVar = oyuncu.el.some(k => k.takim === liderTakim);
+            if(ayniRenkVar && kart.takim !== liderTakim) return false;
+            return true;
+        }
+
+        kartOyna(oyuncuIdx, kart) {
+            if(this.asama !== "OYNA") return false;
+            if(this.siraIndex !== oyuncuIdx) return false;
+            if(!this.kartGecerliMi(kart, oyuncuIdx)) return false;
+            
+            const oyuncu = this.oyuncular[oyuncuIdx];
+            const kartIndex = oyuncu.el.findIndex(k => k.takim === kart.takim && k.deger === kart.deger);
+            if(kartIndex === -1) return false;
+            oyuncu.el.splice(kartIndex,1);
+            this.suankiTur.push({ oyuncuIdx, kart });
+            this.siraIndex = (this.siraIndex+1)%4;
+            this.uiGuncelle?.();
+            
+            if(this.suankiTur.length === 4) this.turuCoz();
+            else this.botOynamaZinciri();
+            return true;
+        }
+
+        botOynamaZinciri() {
+            if(this.asama !== "OYNA") return;
+            while(this.siraIndex < 4 && this.suankiTur.length < 4 && !this.oyuncular[this.siraIndex].insanMi) {
+                let bot = this.oyuncular[this.siraIndex];
+                let gecerliKartlar = bot.el;
+                if(this.suankiTur.length > 0) {
+                    let liderTakim = this.suankiTur[0].kart.takim;
+                    let ayniRenkVar = bot.el.some(k => k.takim === liderTakim);
+                    if(ayniRenkVar) gecerliKartlar = bot.el.filter(k => k.takim === liderTakim);
+                }
+                let secilenKart = gecerliKartlar[0];
+                let kartIndex = bot.el.findIndex(k=>k===secilenKart);
+                bot.el.splice(kartIndex,1);
+                this.suankiTur.push({ oyuncuIdx: this.siraIndex, kart: secilenKart });
+                this.siraIndex = (this.siraIndex+1)%4;
+                this.uiGuncelle?.();
+                if(this.suankiTur.length === 4) {
+                    this.turuCoz();
+                    break;
+                }
+            }
+        }
+
+        turuCoz() {
+            let kazananIdx = this.suankiTur[0].oyuncuIdx;
+            let kazananKart = this.suankiTur[0].kart;
+            for(let i=1; i<this.suankiTur.length; i++) {
+                let kart = this.suankiTur[i].kart;
+                let onceki = kazananKart;
+                let ustunluk = false;
+                if(kart.takim === this.kozTakim && onceki.takim !== this.kozTakim) ustunluk = true;
+                else if(kart.takim === this.kozTakim && onceki.takim === this.kozTakim && kart.rank > onceki.rank) ustunluk = true;
+                else if(kart.takim === onceki.takim && kart.rank > onceki.rank) ustunluk = true;
+                if(ustunluk) {
+                    kazananIdx = this.suankiTur[i].oyuncuIdx;
+                    kazananKart = kart;
+                }
+            }
+            this.oyuncular[kazananIdx].alinanEl++;
+            this.baslatanIndex = kazananIdx;
+            this.siraIndex = kazananIdx;
+            this.suankiTur = [];
+            this.uiGuncelle?.();
+            // el bitti mi?
+            if(this.oyuncular[0].el.length === 0) this.eliBitirPuanla();
+            else this.botOynamaZinciri();
+        }
+
+        eliBitirPuanla() {
+            for(let i=0; i<4; i++) {
+                let oy = this.oyuncular[i];
+                let fark = oy.alinanEl - oy.batma;
+                if(fark >= 0) oy.bolumPuani += (10 * oy.batma) + fark;
+                else oy.bolumPuani -= (10 * oy.batma);
+            }
+            if(this.aktifEl === 3) {
+                this.bolumSonuKontrol();
+            } else {
+                this.aktifEl++;
+                this.yeniElBaslat();
+            }
+        }
+
+        bolumSonuKontrol() {
+            let insanPuan = this.oyuncular[0].bolumPuani;
+            let botOrt = (this.oyuncular[1].bolumPuani + this.oyuncular[2].bolumPuani + this.oyuncular[3].bolumPuani) / 3;
+            if(insanPuan > botOrt) {
+                if(this.bolum === 1) {
+                    this.bolum = 2;
+                    this.aktifEl = 1;
+                    this.baslatanIndex = 0;
+                    for(let oy of this.oyuncular) oy.bolumPuani = 0;
+                    this.yeniElBaslat();
+                    this.uiGuncelle?.();
+                    this.mesajGoster("🎉 BÖLÜM 1 GEÇİLDİ! 2. Bölüm başlıyor! 🎉", 3000);
+                } else {
+                    this.asama = "OYUN_BITTI";
+                    this.kazananMesaj = "🏆 TEBRİKLER! 2 Bölümü de kazandınız! 🏆";
+                    this.uiGuncelle?.();
+                }
+            } else {
+                this.asama = "OYUN_BITTI";
+                this.kazananMesaj = "😵 Kaybettiniz... Tekrar denemek için 'OYUNU SIFIRLA'";
+                this.uiGuncelle?.();
+            }
+        }
+
+        mesajGoster(msg, sure=2000) {
+            const mesajDiv = document.getElementById('mesajDinamik');
+            if(mesajDiv) {
+                mesajDiv.innerText = msg;
+                setTimeout(()=> {
+                    if(mesajDiv.innerText === msg) mesajDiv.innerText = "✨ Hamle yapmak için kartlara tıkla ✨";
+                }, sure);
+            }
+        }
+
+        oyunuSifirla() {
+            this.bolum = 1;
+            this.aktifEl = 1;
+            this.asama = "BATMA";
+            this.baslatanIndex = 0;
+            this.kazananMesaj = null;
+            for(let oy of this.oyuncular) {
+                oy.bolumPuani = 0;
+                oy.batma = null;
+                oy.alinanEl = 0;
+            }
+            this.yeniElBaslat();
+            this.uiGuncelle?.();
+            this.mesajGoster("Oyun sıfırlandı! Yeni macera başlıyor.", 2000);
+        }
+
+        // arayüz bağlama
+        bagleUI(callback) {
+            this.uiGuncelle = callback;
+        }
+    }
+
+    // ---------- ARAYÜZ RENDER ----------
+    let oyun = new BatakOyun();
+
+    function renderUI() {
+        const root = document.getElementById('gameRoot');
+        if(!root) return;
+        const oyuncular = oyun.oyuncular;
+        const asama = oyun.asama;
+        const aktifEl = oyun.aktifEl;
+        const bolum = oyun.bolum;
+        const koz = oyun.kozTakim;
+        const siradaki = oyun.siraIndex;
+        const turdakiKartlar = oyun.suankiTur;
+
+        let html = `
+            <div class="score-panel">
+                <div class="bolum-bilgi">📀 BÖLÜM ${bolum} / 2 &nbsp;|&nbsp; 🃟 EL ${aktifEl} / 3</div>
+                <div class="skor-tablosu">
+        `;
+        for(let i=0; i<oyuncular.length; i++) {
+            const o = oyuncular[i];
+            const aktifSinif = (asama === "OYNA" && siradaki === i && !o.insanMi) ? 'aktif' : (asama === "OYNA" && siradaki === i && o.insanMi ? 'aktif' : '');
+            html += `
+                <div class="oyuncu-kart ${aktifSinif}">
+                    <div class="oyuncu-isim">${o.isim}</div>
+                    <div class="elde-aldı">🃟 Aldığı el: ${o.alinanEl}</div>
+                    <div class="batma-puan">🎯 Batma: ${o.batma !== null ? o.batma : '?'}</div>
+                    <div>⭐ Puan: ${o.bolumPuani}</div>
+                </div>
+            `;
+        }
+
+        html += `</div></div>`;
+        html += `<div class="oyun-alani">`;
+        html += `<div class="info-kutusu">♜ KOZ: ${koz ? TAKIM_ISIM[koz] : 'Belirleniyor...'} &nbsp;|&nbsp; Sıra: ${oyuncular[siradaki]?.isim || '-'}</div>`;
+
+        // oynanan son tur kartları
+        if(turdakiKartlar.length > 0) {
+            html += `<div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; background:#1f472b; border-radius:32px; padding:8px;">`;
+            for(let item of turdakiKartlar) {
+                let kart = item.kart;
+                let renkClass = (kart.takim === '♥' || kart.takim === '♦') ? 'kirmizi' : '';
+                html += `<div class="kart ${renkClass}" style="cursor:default; opacity:0.9;">${kart.toString()}</div>`;
+            }
+            html += `</div>`;
+        }
+
+        html += `<div class="kart-alani" id="insanKartAlanı">`;
+        // insanın eli veya batma butonları
+        if(asama === "BATMA" && oyuncular[0].batma === null) {
+            html += `<div style="width:100%; text-align:center; margin-bottom:10px;">🎲 BATMA SEÇ (0-13):</div>`;
+            for(let b=0; b<=13; b++) {
+                html += `<button class="batma-btn" data-bid="${b}">${b}</button>`;
+            }
+        } 
+        else if(asama === "OYNA" && oyuncular[0].insanMi && oyuncular[0].el.length>0) {
+            for(let kart of oyuncular[0].el) {
+                let renkClass = (kart.takim === '♥' || kart.takim === '♦') ? 'kirmizi' : '';
+                html += `<div class="kart ${renkClass}" data-card='${JSON.stringify({takim:kart.takim, deger:kart.deger})}'>${kart.toString()}</div>`;
+            }
+        } else if(asama === "BATMA" && oyuncular[0].batma !== null) {
+            html += `<div style="padding:20px;">🤖 Botlar batma yapıyor... Lütfen bekleyin</div>`;
+        } else if(asama === "OYNA" && oyuncular[0].insanMi && oyuncular[0].el.length===0) {
+            html += `<div>El bitti, sıra puanlamada...</div>`;
+        }
+
+        html += `</div><div class="butonlar"><button id="sifirlaButon" class="reset-btn">🔄 OYUNU SIFIRLA</button></div>`;
+        html += `<div id="mesajDinamik" class="mesaj-alani">✨ Hamle yapmak için kartlara tıkla ✨</div>`;
+        if(oyun.kazananMesaj) {
+            html += `<div class="mesaj-alani" style="background:#ffd966;color:#1e3a1e;">${oyun.kazananMesaj}</div>`;
+        }
+        html += `</div></div>`;
+        root.innerHTML = html;
+
+        // eventler
+        if(asama === "BATMA" && oyuncular[0].batma === null) {
+            document.querySelectorAll('.batma-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    let bid = parseInt(btn.getAttribute('data-bid'));
+                    oyun.insanBatma(bid);
+                });
+            });
+        }
+        if(asama === "OYNA") {
+            document.querySelectorAll('.kart[data-card]').forEach(kartElem => {
+                kartElem.addEventListener('click', (e) => {
+                    const kartData = JSON.parse(kartElem.getAttribute('data-card'));
+                    const kartNesne = new Kart(kartData.takim, kartData.deger);
+                    oyun.kartOyna(0, kartNesne);
+                });
+            });
+        }
+        document.getElementById('sifirlaButon')?.addEventListener('click', () => {
+            oyun.oyunuSifirla();
+        });
+    }
+
+    oyun.bagleUI(() => renderUI());
+    oyun.yeniElBaslat();
+    // bot batma tetikleme başlangıç için
+    setTimeout(() => {
+        if(oyun.asama === "BATMA") oyun.botBatmaYap();
+    }, 200);
+</script>
+</body>
+</html>
